@@ -1,24 +1,12 @@
-import React, { useState } from 'react';
-
+import React from 'react'
+import Random from './Random.js';
 function App() {
-
-  const [data, setData] = useState([
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0]
-  ])
 
   return (
     <div>
-      {data}
-      
+      <Random />
     </div>
   );
-}
-
-const Block = () => {
-  return <div></div>
 }
 
 export default App;
