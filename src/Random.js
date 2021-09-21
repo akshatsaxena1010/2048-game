@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useEvent } from "react";
 import Grid from "./Grid";
 import ArrowKeysReact from "arrow-keys-react";
 import { cloneDeep } from "lodash";
@@ -10,7 +10,11 @@ const Random = () => {
 
   const [score, setScore] = useState(0);
 
+  const [highScore, setHighScore] = useState(0);
+
   const getRandomNumber = (n) => Math.floor(Math.random() * n);
+
+  let actualScore = 0;
 
   const resetGrid = () => {
     let newGrid = new Array(4).fill(0).map(() => new Array(4).fill(0));
@@ -20,17 +24,16 @@ const Random = () => {
     let secondX = getRandomNumber(4);
     let secondY = getRandomNumber(4);
 
-    // console.log('..')
-
     while (firstX === secondX && firstY === secondY) {
-      // console.log('.....dsada')
       secondX = getRandomNumber(3);
       secondY = getRandomNumber(3);
     }
 
     newGrid[firstX][firstY] = 2 * (getRandomNumber(2) + 1);
     newGrid[secondX][secondY] = 2 * (getRandomNumber(2) + 1);
+    actualScore = 0;
 
+    setScore(0);
     setGrid(newGrid);
   };
 
@@ -45,7 +48,6 @@ const Random = () => {
     let added = false;
     let gridFull = false;
     while (!added) {
-      // console.log(count++);
       if (gridFull) break;
 
       let newX = getRandomNumber(4);
@@ -81,7 +83,10 @@ const Random = () => {
         } else if (b[slow] !== 0 && b[fast] !== 0) {
           if (b[slow] === b[fast]) {
             b[slow] = b[slow] + b[fast];
-            setScore(score + b[slow] * 2);
+            actualScore = score + b[slow];
+            setScore(actualScore);
+            if (actualScore > highScore) setHighScore(actualScore);
+            // console.log(actualScore, highScore);
             b[fast] = 0;
             fast = slow + 1;
             slow++;
@@ -99,65 +104,100 @@ const Random = () => {
     return newArray;
   };
 
-  ArrowKeysReact.config({
-    left: () => {
-      let readyGrid = cloneDeep(grid);
-      let newGrid = logic(readyGrid);
-      setGrid(newGrid);
-    },
+  const left = (checkGameFlag) => {
+    let readyGrid = cloneDeep(grid);
+    let newGrid = logic(readyGrid);
+    if (checkGameFlag) setGrid(newGrid);
+    else return JSON.stringify(logic(newGrid)) === JSON.stringify(newGrid);
+  };
 
-    right: () => {
-      let readyGrid = cloneDeep(grid);
-      for (let row of readyGrid) {
-        row.reverse();
-      }
-      // console.log(readyGrid);
-      let newGrid = logic(readyGrid);
-      for (let row of newGrid) {
-        row.reverse();
-      }
-      setGrid(newGrid);
-    },
+  const right = (checkGameFlag) => {
+    let readyGrid = cloneDeep(grid);
+    for (let row of readyGrid) {
+      row.reverse();
+    }
+    // console.log(readyGrid);
+    let newGrid = logic(readyGrid);
+    for (let row of newGrid) {
+      row.reverse();
+    }
 
-    up: () => {
-      let readyGrid = cloneDeep(grid);
-      let newGrid = readyGrid[0].map((_, colIndex) =>
-        readyGrid.map((row) => row[colIndex])
-      );
-      newGrid = logic(newGrid);
-      readyGrid = newGrid[0].map((_, colIndex) =>
-        newGrid.map((row) => row[colIndex])
-      );
-      setGrid(readyGrid);
-    },
+    if (checkGameFlag) setGrid(newGrid);
+    else return JSON.stringify(logic(newGrid)) === JSON.stringify(newGrid);
+  };
 
-    down: () => {
-      let readyGrid = cloneDeep(grid);
-      let newGrid = readyGrid[0].map((_, colIndex) =>
-        readyGrid.map((row) => row[colIndex])
-      );
-      for (let row of newGrid) {
-        row.reverse();
-      }
-      console.log(newGrid);
-      newGrid = logic(newGrid);
-      readyGrid = newGrid[0].map((_, colIndex) =>
-        newGrid.map((row) => row[colIndex])
-      );
-      readyGrid.reverse();
-      console.log(readyGrid);
-      setGrid(readyGrid);
-    },
-  });
+  const up = (checkGameFlag) => {
+    let readyGrid = cloneDeep(grid);
+    let newGrid = readyGrid[0].map((_, colIndex) =>
+      readyGrid.map((row) => row[colIndex])
+    );
+    newGrid = logic(newGrid);
+    readyGrid = newGrid[0].map((_, colIndex) =>
+      newGrid.map((row) => row[colIndex])
+    );
+    if (checkGameFlag) setGrid(readyGrid);
+    else return JSON.stringify(logic(readyGrid)) === JSON.stringify(readyGrid);
+  };
+
+  const down = (checkGameFlag) => {
+    let readyGrid = cloneDeep(grid);
+    let newGrid = readyGrid[0].map((_, colIndex) =>
+      readyGrid.map((row) => row[colIndex])
+    );
+    for (let row of newGrid) {
+      row.reverse();
+    }
+    // console.log(newGrid);
+    newGrid = logic(newGrid);
+    readyGrid = newGrid[0].map((_, colIndex) =>
+      newGrid.map((row) => row[colIndex])
+    );
+    readyGrid.reverse();
+    // console.log(readyGrid);
+    if (checkGameFlag) setGrid(readyGrid);
+    else return JSON.stringify(logic(readyGrid)) === JSON.stringify(readyGrid);
+  };
+
+  const handleKeyDown = (e) => {
+    switch (e.keyCode) {
+      case 38:
+        // console.log("Upkey");
+        up(true);
+        break;
+      case 40:
+        // console.log("Down");
+        down(true);
+        break;
+      case 37:
+        // console.log("Left");
+        left(true);
+        break;
+      case 39:
+        // console.log("right");
+        right(true);
+        break;
+      default:
+        break;
+    }
+
+    if (up(false) && down(false) && left(false) && right(false)) {
+      console.log("Game Over");
+    }
+  };
 
   return (
-    <div {...ArrowKeysReact.events} tabIndex="1">
+    <div
+      {...ArrowKeysReact.events}
+      tabIndex="1"
+      onKeyDown={(e) => handleKeyDown(e)}
+    >
       <Grid grid={grid} />
-      {/* {grid} */}
       <br />
       <button onClick={resetGrid}>Reset</button>
       <br />
       {score}
+      <br />
+      {highScore}
     </div>
   );
 };
