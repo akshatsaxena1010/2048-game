@@ -61,8 +61,6 @@ const Random = () => {
   };
 
   const logic = (fourArrays, checkGameFlag) => {
-    // if (checkGameFlag === false) console.log("check funtion");
-    // if (checkGameFlag === false) console.log("original funtion");
     let newArray = cloneDeep(fourArrays);
     for (let i = 0; i < 4; i++) {
       let b = newArray[i];
@@ -123,7 +121,6 @@ const Random = () => {
     for (let row of readyGrid) {
       row.reverse();
     }
-    // console.log(readyGrid);
     let newGrid = logic(readyGrid, checkGameFlag);
     for (let row of newGrid) {
       row.reverse();
@@ -200,8 +197,12 @@ const Random = () => {
         break;
     }
 
-    if (up(false) && down(false) && left(false) && right(false))
-      alert("Game Over");
+    if (up(false) && down(false) && left(false) && right(false)) {
+      let x = alert("Game Over");
+      if (x === undefined) {
+        resetGrid(0);
+      }
+    }
   };
 
   return (
