@@ -12,9 +12,9 @@ const Random = () => {
 
   const [highScore, setHighScore] = useState(0);
 
-  const getRandomNumber = (n) => Math.floor(Math.random() * n);
-
   let actualScore = 0;
+
+  const getRandomNumber = (n) => Math.floor(Math.random() * n);
 
   const resetGrid = () => {
     let newGrid = new Array(4).fill(0).map(() => new Array(4).fill(0));
@@ -60,7 +60,9 @@ const Random = () => {
     }
   };
 
-  const logic = (fourArrays) => {
+  const logic = (fourArrays, checkGameFlag) => {
+    // if (checkGameFlag === false) console.log("check funtion");
+    // if (checkGameFlag === false) console.log("original funtion");
     let newArray = cloneDeep(fourArrays);
     for (let i = 0; i < 4; i++) {
       let b = newArray[i];
@@ -83,11 +85,12 @@ const Random = () => {
         } else if (b[slow] !== 0 && b[fast] !== 0) {
           if (b[slow] === b[fast]) {
             b[slow] = b[slow] + b[fast];
-            actualScore = score + b[slow];
-            setScore(actualScore);
-            if (actualScore > highScore) setHighScore(actualScore);
-            // console.log(actualScore, highScore);
             b[fast] = 0;
+            if (checkGameFlag) {
+              actualScore = score + b[slow];
+              setScore(actualScore);
+              if (actualScore > highScore) setHighScore(actualScore);
+            }
             fast = slow + 1;
             slow++;
           } else {
@@ -106,9 +109,13 @@ const Random = () => {
 
   const left = (checkGameFlag) => {
     let readyGrid = cloneDeep(grid);
-    let newGrid = logic(readyGrid);
+    let newGrid = logic(readyGrid, checkGameFlag);
     if (checkGameFlag) setGrid(newGrid);
-    else return JSON.stringify(logic(newGrid)) === JSON.stringify(newGrid);
+    else
+      return (
+        JSON.stringify(logic(newGrid, checkGameFlag)) ===
+        JSON.stringify(newGrid)
+      );
   };
 
   const right = (checkGameFlag) => {
@@ -117,26 +124,35 @@ const Random = () => {
       row.reverse();
     }
     // console.log(readyGrid);
-    let newGrid = logic(readyGrid);
+    let newGrid = logic(readyGrid, checkGameFlag);
     for (let row of newGrid) {
       row.reverse();
     }
 
     if (checkGameFlag) setGrid(newGrid);
-    else return JSON.stringify(logic(newGrid)) === JSON.stringify(newGrid);
+    else
+      return (
+        JSON.stringify(logic(newGrid, checkGameFlag)) ===
+        JSON.stringify(newGrid)
+      );
   };
 
   const up = (checkGameFlag) => {
     let readyGrid = cloneDeep(grid);
+
     let newGrid = readyGrid[0].map((_, colIndex) =>
       readyGrid.map((row) => row[colIndex])
     );
-    newGrid = logic(newGrid);
+    newGrid = logic(newGrid, checkGameFlag);
     readyGrid = newGrid[0].map((_, colIndex) =>
       newGrid.map((row) => row[colIndex])
     );
     if (checkGameFlag) setGrid(readyGrid);
-    else return JSON.stringify(logic(readyGrid)) === JSON.stringify(readyGrid);
+    else
+      return (
+        JSON.stringify(logic(readyGrid, checkGameFlag)) ===
+        JSON.stringify(readyGrid)
+      );
   };
 
   const down = (checkGameFlag) => {
@@ -147,15 +163,19 @@ const Random = () => {
     for (let row of newGrid) {
       row.reverse();
     }
-    // console.log(newGrid);
-    newGrid = logic(newGrid);
+    newGrid = logic(newGrid, checkGameFlag);
     readyGrid = newGrid[0].map((_, colIndex) =>
       newGrid.map((row) => row[colIndex])
     );
     readyGrid.reverse();
-    // console.log(readyGrid);
-    if (checkGameFlag) setGrid(readyGrid);
-    else return JSON.stringify(logic(readyGrid)) === JSON.stringify(readyGrid);
+    if (checkGameFlag) {
+      setGrid(readyGrid);
+      return true;
+    } else
+      return (
+        JSON.stringify(logic(readyGrid, checkGameFlag)) ===
+        JSON.stringify(readyGrid)
+      );
   };
 
   const handleKeyDown = (e) => {
@@ -180,9 +200,8 @@ const Random = () => {
         break;
     }
 
-    if (up(false) && down(false) && left(false) && right(false)) {
-      console.log("Game Over");
-    }
+    if (up(false) && down(false) && left(false) && right(false))
+      alert("Game Over");
   };
 
   return (
@@ -195,9 +214,9 @@ const Random = () => {
       <br />
       <button onClick={resetGrid}>Reset</button>
       <br />
-      {score}
+      Score: {score}
       <br />
-      {highScore}
+      High Score: {highScore}
     </div>
   );
 };
