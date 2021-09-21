@@ -1,22 +1,30 @@
-import React, { useState, useEffect, useEvent } from "react";
+import React, { useState, useEffect } from "react";
 import Grid from "./Grid";
-import ArrowKeysReact from "arrow-keys-react";
 import { cloneDeep } from "lodash";
 
+const WINNING_NUMBER = 128;
 const Random = () => {
   const [grid, setGrid] = useState(
     new Array(4).fill(0).map(() => new Array(4).fill(0))
   );
 
   const [score, setScore] = useState(0);
-
   const [highScore, setHighScore] = useState(0);
+  const [highScoreFlag, setHighScoreFlag] = useState(false);
+  const [highScoreName, setHighScoreName] = useState("");
 
   let actualScore = 0;
 
   const getRandomNumber = (n) => Math.floor(Math.random() * n);
 
   const resetGrid = () => {
+    if (highScoreFlag === true) {
+      setHighScoreName(
+        window.prompt("You have scored the highest! Please Enter Your Name")
+      );
+      setHighScoreFlag(false);
+    }
+
     let newGrid = new Array(4).fill(0).map(() => new Array(4).fill(0));
     let firstX = getRandomNumber(4);
     let firstY = getRandomNumber(4);
@@ -87,7 +95,10 @@ const Random = () => {
             if (checkGameFlag) {
               actualScore = score + b[slow];
               setScore(actualScore);
-              if (actualScore > highScore) setHighScore(actualScore);
+              if (actualScore > highScore) {
+                setHighScore(actualScore);
+                setHighScoreFlag(true);
+              }
             }
             fast = slow + 1;
             slow++;
@@ -196,21 +207,25 @@ const Random = () => {
       default:
         break;
     }
-
     if (up(false) && down(false) && left(false) && right(false)) {
-      let x = alert("Game Over");
-      if (x === undefined) {
-        resetGrid(0);
-      }
+      window.confirm("No more moves left. Game is over. Thanks for playing");
+      resetGrid();
     }
   };
 
+  useEffect(() => {
+    grid.map((r) =>
+      r.map((ele) => {
+        if (ele === WINNING_NUMBER) {
+          window.confirm("You have won the game. Do you want to continue?");
+          resetGrid();
+        }
+      })
+    );
+  }, [grid]);
+
   return (
-    <div
-      {...ArrowKeysReact.events}
-      tabIndex="1"
-      onKeyDown={(e) => handleKeyDown(e)}
-    >
+    <div tabIndex="1" onKeyDown={(e) => handleKeyDown(e)}>
       <Grid grid={grid} />
       <br />
       <button onClick={resetGrid}>Reset</button>
@@ -218,6 +233,8 @@ const Random = () => {
       Score: {score}
       <br />
       High Score: {highScore}
+      <br />
+      Name: {highScoreName}
     </div>
   );
 };
