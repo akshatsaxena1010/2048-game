@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Grid from "./Grid";
 import { cloneDeep } from "lodash";
+import Stack from "@mui/material/Stack";
+import ReplayIcon from "@mui/icons-material/Replay";
+import Button from "@mui/material/Button";
+import Scorecard from "./Scorecard";
 
 const WINNING_NUMBER = 128;
+
+const getRandomNumber = (n) => Math.floor(Math.random() * n);
+
 const Random = () => {
   const [grid, setGrid] = useState(
     new Array(4).fill(0).map(() => new Array(4).fill(0))
@@ -11,11 +18,21 @@ const Random = () => {
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
   const [highScoreFlag, setHighScoreFlag] = useState(false);
-  const [highScoreName, setHighScoreName] = useState("");
+  const [highScoreName, setHighScoreName] = useState(null);
 
   let actualScore = 0;
 
-  const getRandomNumber = (n) => Math.floor(Math.random() * n);
+  useEffect(() => {
+    resetGrid();
+  }, []);
+
+  useEffect(() => {
+    for (let r of grid)
+      if (r.includes(WINNING_NUMBER)) {
+        window.confirm("You have won the game. Congratulations!");
+        resetGrid();
+      }
+  }, [grid]);
 
   const resetGrid = () => {
     if (highScoreFlag === true) {
@@ -44,13 +61,6 @@ const Random = () => {
     setScore(0);
     setGrid(newGrid);
   };
-
-  useEffect(() => {
-    const initialize = () => {
-      resetGrid();
-    };
-    initialize();
-  }, []);
 
   const addNumber = (newGrid) => {
     let added = false;
@@ -213,30 +223,41 @@ const Random = () => {
     }
   };
 
-  useEffect(() => {
-    grid.map((r) =>
-      r.map((ele) => {
-        if (ele === WINNING_NUMBER) {
-          window.confirm("You have won the game. Do you want to continue?");
-          resetGrid();
-        }
-      })
-    );
-  }, [grid]);
-
   return (
-    <div tabIndex="1" onKeyDown={(e) => handleKeyDown(e)}>
+    <div
+      tabIndex="1"
+      onKeyDown={(e) => handleKeyDown(e)}
+      style={style.appStyle}
+    >
+      <Scorecard score={score} highScore={highScore} name={highScoreName} />
       <Grid grid={grid} />
       <br />
-      <button onClick={resetGrid}>Reset</button>
-      <br />
-      Score: {score}
-      <br />
-      High Score: {highScore}
-      <br />
-      Name: {highScoreName}
+      <Stack>
+        <Button
+          onClick={resetGrid}
+          variant="contained"
+          style={style.buttonStyle}
+        >
+          <ReplayIcon />
+          Reset
+        </Button>
+      </Stack>
     </div>
   );
 };
 
 export default Random;
+
+const style = {
+  appStyle: {
+    width: "39%",
+    margin: "auto",
+    marginTop: 30,
+    marginBottom: 30,
+  },
+  buttonStyle: {
+    width: "40%",
+    margin: "auto",
+    marginBottom: 10,
+  },
+};
