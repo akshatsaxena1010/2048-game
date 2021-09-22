@@ -43,7 +43,7 @@ const numStyle = {};
 const divStyle = (num) => {
   return {
     padding: 5,
-    width: 120,
+    minWidth: 120,
     height: 120,
     background: getColors(num),
     color: getFontColor(num),

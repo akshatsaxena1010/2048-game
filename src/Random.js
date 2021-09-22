@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Grid from "./Grid";
-import { cloneDeep } from "lodash";
-import Stack from "@mui/material/Stack";
-import ReplayIcon from "@mui/icons-material/Replay";
-import Button from "@mui/material/Button";
 import Scorecard from "./Scorecard";
 
 const WINNING_NUMBER = 128;
@@ -18,7 +14,7 @@ const Random = () => {
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(0);
   const [highScoreFlag, setHighScoreFlag] = useState(false);
-  const [highScoreName, setHighScoreName] = useState(null);
+  const [highScoreName, setHighScoreName] = useState("-");
 
   let actualScore = 0;
 
@@ -79,42 +75,42 @@ const Random = () => {
   };
 
   const logic = (fourArrays, checkGameFlag) => {
-    let newArray = cloneDeep(fourArrays);
+    let newArray = JSON.parse(JSON.stringify(fourArrays));
     for (let i = 0; i < 4; i++) {
       let b = newArray[i];
-      let slow = 0;
-      let fast = 1;
-      while (slow < 4) {
-        if (fast === 4) {
-          fast = slow + 1;
-          slow++;
+      let left = 0;
+      let right = 1;
+      while (left < 4) {
+        if (right === 4) {
+          right = left + 1;
+          left++;
           continue;
         }
-        if (b[slow] === 0 && b[fast] === 0) {
-          fast++;
-        } else if (b[slow] === 0 && b[fast] !== 0) {
-          b[slow] = b[fast];
-          b[fast] = 0;
-          fast++;
-        } else if (b[slow] !== 0 && b[fast] === 0) {
-          fast++;
-        } else if (b[slow] !== 0 && b[fast] !== 0) {
-          if (b[slow] === b[fast]) {
-            b[slow] = b[slow] + b[fast];
-            b[fast] = 0;
+        if (b[left] === 0 && b[right] === 0) {
+          right++;
+        } else if (b[left] === 0 && b[right] !== 0) {
+          b[left] = b[right];
+          b[right] = 0;
+          right++;
+        } else if (b[left] !== 0 && b[right] === 0) {
+          right++;
+        } else if (b[left] !== 0 && b[right] !== 0) {
+          if (b[left] === b[right]) {
+            b[left] = b[left] + b[right];
+            b[right] = 0;
             if (checkGameFlag) {
-              actualScore = score + b[slow];
+              actualScore = score + b[left];
               setScore(actualScore);
               if (actualScore > highScore) {
                 setHighScore(actualScore);
                 setHighScoreFlag(true);
               }
             }
-            fast = slow + 1;
-            slow++;
+            right = left + 1;
+            left++;
           } else {
-            slow++;
-            fast = slow + 1;
+            left++;
+            right = left + 1;
           }
         }
       }
@@ -127,7 +123,7 @@ const Random = () => {
   };
 
   const left = (checkGameFlag) => {
-    let readyGrid = cloneDeep(grid);
+    let readyGrid = JSON.parse(JSON.stringify(grid));
     let newGrid = logic(readyGrid, checkGameFlag);
     if (checkGameFlag) setGrid(newGrid);
     else
@@ -138,7 +134,7 @@ const Random = () => {
   };
 
   const right = (checkGameFlag) => {
-    let readyGrid = cloneDeep(grid);
+    let readyGrid = JSON.parse(JSON.stringify(grid));
     for (let row of readyGrid) {
       row.reverse();
     }
@@ -156,7 +152,7 @@ const Random = () => {
   };
 
   const up = (checkGameFlag) => {
-    let readyGrid = cloneDeep(grid);
+    let readyGrid = JSON.parse(JSON.stringify(grid));
 
     let newGrid = readyGrid[0].map((_, colIndex) =>
       readyGrid.map((row) => row[colIndex])
@@ -174,7 +170,7 @@ const Random = () => {
   };
 
   const down = (checkGameFlag) => {
-    let readyGrid = cloneDeep(grid);
+    let readyGrid = JSON.parse(JSON.stringify(grid));
     let newGrid = readyGrid[0].map((_, colIndex) =>
       readyGrid.map((row) => row[colIndex])
     );
@@ -229,19 +225,13 @@ const Random = () => {
       onKeyDown={(e) => handleKeyDown(e)}
       style={style.appStyle}
     >
+      <h1 style={style.h1Style}>2048</h1>
       <Scorecard score={score} highScore={highScore} name={highScoreName} />
       <Grid grid={grid} />
       <br />
-      <Stack>
-        <Button
-          onClick={resetGrid}
-          variant="contained"
-          style={style.buttonStyle}
-        >
-          <ReplayIcon />
-          Reset
-        </Button>
-      </Stack>
+      <button onClick={resetGrid} style={style.buttonStyle}>
+        New Game
+      </button>
     </div>
   );
 };
@@ -250,14 +240,37 @@ export default Random;
 
 const style = {
   appStyle: {
-    width: "39%",
+    outline: "none",
+    display: "inline",
+    width: "50%",
     margin: "auto",
     marginTop: 30,
     marginBottom: 30,
+    paddingLeft: 20,
   },
   buttonStyle: {
-    width: "40%",
     margin: "auto",
+    fontWeight: "bold",
+    fontSize: 30,
+    background: "#8f7a66",
+    borderRadius: 100,
+    color: "#f9f6f2",
     marginBottom: 10,
+    paddingLeft: 15,
+    paddingRight: 15,
+    paddingTop: 10,
+    paddingBottom: 10,
+    cursor: "pointer",
+    textDecoration: "none",
+    boxShadow: "none",
+  },
+  h1Style: {
+    float: "left",
+    fontSize: 64,
+    paddingTop: 5,
+    paddingLeft: 10,
+    paddingRight: 15,
+    margin: 0,
+    color: "#776e65",
   },
 };

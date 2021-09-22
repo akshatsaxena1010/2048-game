@@ -5,6 +5,8 @@ function App() {
   return (
     <div>
       <Random />
+      <br />
+      *Please press TAB or click on the grid to start playing
     </div>
   );
 }

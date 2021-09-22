@@ -14,9 +14,7 @@ const Grid = (props) => {
 
 const style = {
   gridStyle: {
-    float: "center",
     align: "center",
-    marginLeft: "10%",
   },
 };
 
