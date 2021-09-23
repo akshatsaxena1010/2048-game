@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Grid from "./Grid";
 import Scorecard from "./Scorecard";
 
-const WINNING_NUMBER = 128;
+const WINNING_NUMBER = 2048;
 
 const getRandomNumber = (n) => Math.floor(Math.random() * n);
 
@@ -32,9 +32,11 @@ const Random = () => {
 
   const resetGrid = () => {
     if (highScoreFlag === true) {
-      setHighScoreName(
-        window.prompt("You have scored the highest! Please Enter Your Name")
+      let name = window.prompt(
+        "You have scored the highest! Please Enter Your Name"
       );
+      if (name) setHighScoreName(name);
+      else setHighScoreName("-");
       setHighScoreFlag(false);
     }
 
@@ -60,10 +62,7 @@ const Random = () => {
 
   const addNumber = (newGrid) => {
     let added = false;
-    let gridFull = false;
     while (!added) {
-      if (gridFull) break;
-
       let newX = getRandomNumber(4);
       let newY = getRandomNumber(4);
 
@@ -123,8 +122,8 @@ const Random = () => {
   };
 
   const left = (checkGameFlag) => {
-    let readyGrid = JSON.parse(JSON.stringify(grid));
-    let newGrid = logic(readyGrid, checkGameFlag);
+    let tempGrid = JSON.parse(JSON.stringify(grid));
+    let newGrid = logic(tempGrid, checkGameFlag);
     if (checkGameFlag) setGrid(newGrid);
     else
       return (
@@ -134,11 +133,11 @@ const Random = () => {
   };
 
   const right = (checkGameFlag) => {
-    let readyGrid = JSON.parse(JSON.stringify(grid));
-    for (let row of readyGrid) {
+    let tempGrid = JSON.parse(JSON.stringify(grid));
+    for (let row of tempGrid) {
       row.reverse();
     }
-    let newGrid = logic(readyGrid, checkGameFlag);
+    let newGrid = logic(tempGrid, checkGameFlag);
     for (let row of newGrid) {
       row.reverse();
     }
@@ -152,43 +151,43 @@ const Random = () => {
   };
 
   const up = (checkGameFlag) => {
-    let readyGrid = JSON.parse(JSON.stringify(grid));
+    let tempGrid = JSON.parse(JSON.stringify(grid));
 
-    let newGrid = readyGrid[0].map((_, colIndex) =>
-      readyGrid.map((row) => row[colIndex])
+    let newGrid = tempGrid[0].map((_, colIndex) =>
+      tempGrid.map((row) => row[colIndex])
     );
     newGrid = logic(newGrid, checkGameFlag);
-    readyGrid = newGrid[0].map((_, colIndex) =>
+    tempGrid = newGrid[0].map((_, colIndex) =>
       newGrid.map((row) => row[colIndex])
     );
-    if (checkGameFlag) setGrid(readyGrid);
+    if (checkGameFlag) setGrid(tempGrid);
     else
       return (
-        JSON.stringify(logic(readyGrid, checkGameFlag)) ===
-        JSON.stringify(readyGrid)
+        JSON.stringify(logic(tempGrid, checkGameFlag)) ===
+        JSON.stringify(tempGrid)
       );
   };
 
   const down = (checkGameFlag) => {
-    let readyGrid = JSON.parse(JSON.stringify(grid));
-    let newGrid = readyGrid[0].map((_, colIndex) =>
-      readyGrid.map((row) => row[colIndex])
+    let tempGrid = JSON.parse(JSON.stringify(grid));
+    tempGrid = tempGrid[0].map((_, colIndex) =>
+      tempGrid.map((row) => row[colIndex])
     );
-    for (let row of newGrid) {
+    for (let row of tempGrid) {
       row.reverse();
     }
-    newGrid = logic(newGrid, checkGameFlag);
-    readyGrid = newGrid[0].map((_, colIndex) =>
-      newGrid.map((row) => row[colIndex])
+    tempGrid = logic(tempGrid, checkGameFlag);
+    tempGrid = tempGrid[0].map((_, colIndex) =>
+      tempGrid.map((row) => row[colIndex])
     );
-    readyGrid.reverse();
+    tempGrid.reverse();
     if (checkGameFlag) {
-      setGrid(readyGrid);
+      setGrid(tempGrid);
       return true;
     } else
       return (
-        JSON.stringify(logic(readyGrid, checkGameFlag)) ===
-        JSON.stringify(readyGrid)
+        JSON.stringify(logic(tempGrid, checkGameFlag)) ===
+        JSON.stringify(tempGrid)
       );
   };
 
